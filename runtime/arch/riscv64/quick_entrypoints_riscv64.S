@@ -2464,6 +2464,7 @@ ENTRY art_quick_generic_jni_trampoline
     addi    sp, sp, -2047        # reserve space on the stack. -5120 bytes
     addi    sp, sp, -2047
     addi    sp, sp, -1026
+    mv      a2, sp               # pass reserved area
     jal     artQuickGenericJniTrampoline   # (Thread*, SP)
 
     # The C call will have registered the complete save-frame on success.
