@@ -35,7 +35,7 @@ namespace mirror {
 
 class MANAGED Array : public Object {
  public:
-  static constexpr size_t kFirstElementOffset = 12u;
+  static constexpr size_t kFirstElementOffset = 20u;
 
   // The size of a java.lang.Class representing an array.
   static uint32_t ClassSize(PointerSize pointer_size);

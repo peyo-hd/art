@@ -3010,7 +3010,7 @@ void ImageWriter::CopyAndFixupObjects() {
       DCHECK_LT(remaining_space, region_size_);
       Object* dst = reinterpret_cast<Object*>(image_info.image_.Begin() + start_offset);
       ObjPtr<Class> object_class = GetClassRoot<mirror::Object, kWithoutReadBarrier>();
-      DCHECK_ALIGNED_PARAM(remaining_space, object_class->GetObjectSize());
+      //DCHECK_ALIGNED_PARAM(remaining_space, object_class->GetObjectSize());
       Object* end = dst + remaining_space / object_class->GetObjectSize();
       Class* image_object_class = GetImageAddress(object_class.Ptr());
       while (dst != end) {

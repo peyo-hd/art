@@ -71,7 +71,7 @@ class Throwable;
 static constexpr bool kCheckFieldAssignments = false;
 
 // Size of Object.
-static constexpr uint32_t kObjectHeaderSize = kUseBrooksReadBarrier ? 16 : 8;
+static constexpr uint32_t kObjectHeaderSize = 16;
 
 // C++ mirror of java.lang.Object
 class MANAGED LOCKABLE Object {
@@ -773,7 +773,9 @@ class MANAGED LOCKABLE Object {
   // The Class representing the type of the object.
   HeapReference<Class> klass_;
   // Monitor and hash code information.
+  uint32_t lonitor_;
   uint32_t monitor_;
+  uint32_t nonitor_;
 
 #ifdef USE_BROOKS_READ_BARRIER
   // Note names use a 'x' prefix and the x_rb_ptr_ is of type int

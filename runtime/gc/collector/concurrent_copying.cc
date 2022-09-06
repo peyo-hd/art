@@ -3466,7 +3466,7 @@ mirror::Object* ConcurrentCopying::Copy(Thread* const self,
   const size_t kObjectHeaderSize = sizeof(mirror::Object);
   DCHECK_GE(obj_size, kObjectHeaderSize);
   static_assert(kObjectHeaderSize == sizeof(mirror::HeapReference<mirror::Class>) +
-                    sizeof(LockWord),
+                    sizeof(LockWord) + 8,
                 "Object header size does not match");
   // Memcpy can tear for words since it may do byte copy. It is only safe to do this since the
   // object in the from space is immutable other than the lock word. b/31423258
