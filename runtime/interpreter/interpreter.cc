@@ -252,7 +252,7 @@ static inline JValue Execute(
     const CodeItemDataAccessor& accessor,
     ShadowFrame& shadow_frame,
     JValue result_register,
-    bool stay_in_interpreter = false,
+    bool stay_in_interpreter = true,
     bool from_deoptimize = false) REQUIRES_SHARED(Locks::mutator_lock_) {
   DCHECK(!shadow_frame.GetMethod()->IsAbstract());
   DCHECK(!shadow_frame.GetMethod()->IsNative());

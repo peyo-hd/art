@@ -1360,7 +1360,7 @@ class Thread {
   }
 
   bool IsForceInterpreter() const {
-    return tls32_.force_interpreter_count != 0;
+    return true;//tls32_.force_interpreter_count != 0;
   }
 
   bool IncrementMakeVisiblyInitializedCounter() {
