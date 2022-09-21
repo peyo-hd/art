@@ -42,7 +42,7 @@ extern void EnterInterpreterFromInvoke(Thread* self, ArtMethod* method,
                                        ObjPtr<mirror::Object> receiver,
                                        uint32_t* args,
                                        JValue* result,
-                                       bool stay_in_interpreter = false)
+                                       bool stay_in_interpreter = true)
     REQUIRES_SHARED(Locks::mutator_lock_);
 
 // 'from_code' denotes whether the deoptimization was explicitly triggered by compiled code.
