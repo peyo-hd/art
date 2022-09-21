@@ -758,15 +758,12 @@ ENTRY art_quick_lock_object
     li      t3, LOCK_WORD_GC_STATE_MASK_SHIFTED_TOGGLED
 .Lretry_lock:
     lw      t0, THREAD_ID_OFFSET(rSELF)    # TODO: Can the thread ID really change during the loop?
-    addi    t5, a0, MIRROR_OBJECT_LOCK_WORD_OFFSET
-    lr.w    t1, (t5)
+    lw      t1, MIRROR_OBJECT_LOCK_WORD_OFFSET(a0)
     and     t2, t1, t3                    # zero the gc bits   
     bnez    t2, .Lnot_unlocked            # already thin locked
     # Unlocked case - $t1: original lock word that's zero except for the read barrier bits.
     or      t2, t1, t0                 # $t2 holds thread id with count of 0 with preserved read barrier bits
-    addi    t5, a0, MIRROR_OBJECT_LOCK_WORD_OFFSET
-    sc.w    t2, t2, (t5)             # 
-    bnez    t2, .Lretry_lock               # store failed, retry
+    sw      t2, MIRROR_OBJECT_LOCK_WORD_OFFSET(a0)
     fence                                  # full (LoadLoad|LoadStore) memory barrier
     #.long   0x01b0000b                     # sync.is
     jr  ra
@@ -784,9 +781,7 @@ ENTRY art_quick_lock_object
     srl     t2, t2, LOCK_WORD_STATE_SHIFT  # if the first gc state bit is set, we overflowed.
     bnez    t2, .Lslow_lock              # if we overflow the count go slow path
     add     t2, t1, t6                   # increment count for real
-    addi    t5, a0, MIRROR_OBJECT_LOCK_WORD_OFFSET
-    sc.w    t2, t2, (t5)
-    bnez    t2, .Lretry_lock             # store failed, retry
+    sw      t2, MIRROR_OBJECT_LOCK_WORD_OFFSET(a0)
     jr  ra
 .Lslow_lock:
     # .cpsetup $t9, $t8, art_quick_lock_object
@@ -857,12 +852,7 @@ ENTRY_NO_GP art_quick_unlock_object
     li      t6, LOCK_WORD_THIN_LOCK_COUNT_ONE
     li      t3, LOCK_WORD_GC_STATE_MASK_SHIFTED_TOGGLED
 .Lretry_unlock:
-#ifndef USE_READ_BARRIER
     lw      t1, MIRROR_OBJECT_LOCK_WORD_OFFSET(a0)
-#else   
-    addi    t5, a0, MIRROR_OBJECT_LOCK_WORD_OFFSET    # Need to use atomic read-modify-write for read barrier
-    lr.w    t1, (t5)
-#endif
     srlw    t2, t1, LOCK_WORD_STATE_SHIFT
     bnez    t2, .Lslow_unlock         # if either of the top two bits are set, go slow path
     lw      t0, THREAD_ID_OFFSET(rSELF)
@@ -878,24 +868,12 @@ ENTRY_NO_GP art_quick_unlock_object
     not     t2, t2
     and     t2, t1, t2              # t2: zero except for the preserved gc bits
     fence                           # full (LoadStore|StoreStore) memory barrier
-#ifndef USE_READ_BARRIER
     sw      t2, MIRROR_OBJECT_LOCK_WORD_OFFSET(a0)
-#else
-    addi    t5, a0, MIRROR_OBJECT_LOCK_WORD_OFFSET  # @todo sc      t2, MIRROR_OBJECT_LOCK_WORD_OFFSET(a0)
-    sc.w    t2, t2, (t5)
-    bnez    t2, .Lretry_unlock        # store failed, retry
-#endif
     jr      ra    # @todo jic     ra, 0
 .Lrecursive_thin_unlock:
     # t1: original lock word
     sub     t2, t1, t6              # decrement count
-#ifndef USE_READ_BARRIER
     sw      t2, MIRROR_OBJECT_LOCK_WORD_OFFSET(a0)
-#else
-    addi    t5, a0, MIRROR_OBJECT_LOCK_WORD_OFFSET
-    sc.w    t2, t2, (t5)
-    bnez    t2, .Lretry_unlock        # store failed, retry
-#endif
     jr      ra
 .Lslow_unlock:
     SETUP_SAVE_REFS_ONLY_FRAME         # save callee saves in case exception allocation triggers GC
