@@ -65,11 +65,21 @@ enum XRegister {
 
   kNumberOfXRegisters = 32,
   kNoRegister = -1,  // Signals an illegal register.
+  kNoGpuRegister = kNoRegister,
 
   // Aliases.
   TR = S1, // ART Thread Register - managed runtime
+  T9 = T6,
+  TMP  = T5,
+  TMP2 = T4,
+  AT = T3,
+  S0 = FP,
 };
 
+#define ZERO Zero
+#define GpuRegister XRegister
+#define kNumberOfGpuRegisters kNumberOfXRegisters
+  
 //std::ostream& operator<<(std::ostream& os, const Register& rhs);
 
 enum FloatRegister {
@@ -106,9 +116,86 @@ enum FloatRegister {
   F30 = 30,
   F31 = 31,
   kNumberOfFRegisters = 32,
+  kNoFpuRegister = kNoRegister,
+
+  FT0  =  0,  // Temporary register.
+  FT1  =  1,  // ...
+  FT2  =  2,
+  FT3  =  3,
+  FT4  =  4,
+  FT5  =  5,
+  FT6  =  6,
+  FT7  =  7,
+  FS0  =  8,  // Saved register
+  FS1  =  9,  // ...
+  FA0  = 10,  // Function arguments/return values.
+  FA1  = 11,  // Function arguments/return values.
+  FA2  = 12,  // Function arguments
+  FA3  = 13,
+  FA4  = 14,
+  FA5  = 15,
+  FA6  = 16,
+  FA7  = 17,
+  FS2  = 18,   // Saved register
+  FS3  = 19,
+  FS4  = 20,
+  FS5  = 21,
+  FS6  = 22,
+  FS7  = 23,
+  FS8  = 24,
+  FS9  = 25,
+  FS10 = 26,
+  FS11 = 27,
+  FT8  = 28,  // Temporary register.
+  FT9  = 29,
+  FT10 = 30,
+  FT11 = 31,
 };
 
+#define FpuRegister FloatRegister
+#define kNumberOfFpuRegisters kNumberOfFRegisters
+
 //std::ostream& operator<<(std::ostream& os, const FloatRegister& rhs);
+
+// Values for vector registers.
+enum VectorRegister {
+  W0  =  0,
+  W1  =  1,
+  W2  =  2,
+  W3  =  3,
+  W4  =  4,
+  W5  =  5,
+  W6  =  6,
+  W7  =  7,
+  W8  =  8,
+  W9  =  9,
+  W10 = 10,
+  W11 = 11,
+  W12 = 12,
+  W13 = 13,
+  W14 = 14,
+  W15 = 15,
+  W16 = 16,
+  W17 = 17,
+  W18 = 18,
+  W19 = 19,
+  W20 = 20,
+  W21 = 21,
+  W22 = 22,
+  W23 = 23,
+  W24 = 24,
+  W25 = 25,
+  W26 = 26,
+  W27 = 27,
+  W28 = 28,
+  W29 = 29,
+  W30 = 30,
+  W31 = 31,
+  kNumberOfVectorRegisters = 32,
+  kNoVectorRegister = kNoRegister,
+};
+
+//std::ostream& operator<<(std::ostream& os, const VectorRegister& rhs);
 
 }  // namespace riscv64
 }  // namespace art
