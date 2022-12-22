@@ -358,6 +358,10 @@ FrameOffset Riscv64JniCallingConvention::CurrentParamStackOffset() {
   // XC-ART-TODO: Seems identical to X86_64 code.
 }
 
+ManagedRegister Riscv64JniCallingConvention::LockingArgumentRegister() const {
+  return Riscv64ManagedRegister::FromGpuRegister(T0);
+}
+
 ManagedRegister Riscv64JniCallingConvention::HiddenArgumentRegister() const {
   CHECK(IsCriticalNative());
   // XC-ART-TBD: double check selected T0 in the future.

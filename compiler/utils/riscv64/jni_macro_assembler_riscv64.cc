@@ -51,8 +51,20 @@ void Riscv64JNIMacroAssembler::DecreaseFrameSize(size_t adjust) {
   __ DecreaseFrameSize(adjust);
 }
 
+ManagedRegister Riscv64JNIMacroAssembler::CoreRegisterWithSize(ManagedRegister src, size_t size) {
+  DCHECK(size == 4u || size == 8u) << size;
+  return src;
+}
+
 void Riscv64JNIMacroAssembler::Store(FrameOffset offs, ManagedRegister m_src, size_t size) {
-  __ Store(offs, m_src, size);
+  Store(Riscv64ManagedRegister::FromGpuRegister(SP), MemberOffset(offs.Int32Value()), m_src, size);
+}
+
+void Riscv64JNIMacroAssembler::Store(ManagedRegister m_base,
+                                   MemberOffset offs,
+                                   ManagedRegister m_src ATTRIBUTE_UNUSED,
+                                   size_t size) {
+  __ Store(FrameOffset(offs.Int32Value()), m_base, size);
 }
 
 void Riscv64JNIMacroAssembler::StoreRef(FrameOffset offs, ManagedRegister m_src) {
@@ -87,6 +99,14 @@ void Riscv64JNIMacroAssembler::StoreSpanning(FrameOffset dest_off,
 void Riscv64JNIMacroAssembler::Load(ManagedRegister m_dst, FrameOffset src, size_t size) {
   __ Load(m_dst, src, size);
 }
+
+void Riscv64JNIMacroAssembler::Load(ManagedRegister m_dst,
+                                  ManagedRegister m_base,
+                                  MemberOffset offs,
+                                  size_t size ATTRIBUTE_UNUSED) {
+  __ LoadRawPtr(m_dst, m_base, offs);
+}
+
 
 void Riscv64JNIMacroAssembler::LoadFromThread(ManagedRegister m_dst,
                                             ThreadOffset64 src,
@@ -140,7 +160,7 @@ void Riscv64JNIMacroAssembler::MoveArguments(ArrayRef<ArgumentLocation> dests,
   for (size_t i = 0, arg_count = srcs.size(); i != arg_count; ++i) {
     const ArgumentLocation& src = srcs[i];
     const ArgumentLocation& dest = dests[i];
-    DCHECK_EQ(src.GetSize(), dest.GetSize());
+    //DCHECK_EQ(src.GetSize(), dest.GetSize());
     if (dest.IsRegister()) {
       if (src.IsRegister() && src.GetRegister().Equals(dest.GetRegister())) {
         // Nothing to do.
@@ -191,6 +211,11 @@ void Riscv64JNIMacroAssembler::MoveArguments(ArrayRef<ArgumentLocation> dests,
 void Riscv64JNIMacroAssembler::Move(ManagedRegister m_dst, ManagedRegister m_src, size_t size) {
   __ Move(m_dst, m_src, size);
 }
+
+void Riscv64JNIMacroAssembler::Move(ManagedRegister m_dst, size_t value) {
+  __ Move(m_dst, m_dst, value);
+}
+
 
 void Riscv64JNIMacroAssembler::CopyRawPtrFromThread(FrameOffset fr_offs,
                                                   ThreadOffset64 tr_offs) {
@@ -376,7 +401,24 @@ void Riscv64JNIMacroAssembler::CreateJObject(FrameOffset out_off,
   __ Sd(scratch, T6, 0);
 }
 
+void Riscv64JNIMacroAssembler::TryToTransitionFromRunnableToNative(
+    JNIMacroLabel* label ATTRIBUTE_UNUSED,
+    ArrayRef<const ManagedRegister> scratch_regs ATTRIBUTE_UNUSED) {
+}
+
+void Riscv64JNIMacroAssembler::TryToTransitionFromNativeToRunnable(
+    JNIMacroLabel* label ATTRIBUTE_UNUSED,
+    ArrayRef<const ManagedRegister> scratch_regs ATTRIBUTE_UNUSED,
+    ManagedRegister return_reg ATTRIBUTE_UNUSED) {
+}
+
+void Riscv64JNIMacroAssembler::SuspendCheck(JNIMacroLabel* label ATTRIBUTE_UNUSED) {
+}
+
 void Riscv64JNIMacroAssembler::ExceptionPoll(JNIMacroLabel* label ATTRIBUTE_UNUSED) {
+}
+
+void Riscv64JNIMacroAssembler::DeliverPendingException() {
 }
 
 std::unique_ptr<JNIMacroLabel> Riscv64JNIMacroAssembler::CreateLabel() {
@@ -395,6 +437,15 @@ void Riscv64JNIMacroAssembler::Jump(ManagedRegister m_base, Offset offs) {
   __ Daddiu64(scratch, base.AsGpuRegister(), offs.Int32Value());
   __ Ld(scratch, scratch, 0);
   __ Jr(scratch);
+}
+
+void Riscv64JNIMacroAssembler::TestMarkBit(ManagedRegister m_ref ATTRIBUTE_UNUSED,
+                                         JNIMacroLabel* label ATTRIBUTE_UNUSED,
+                                         JNIMacroUnaryCondition cond ATTRIBUTE_UNUSED) {
+}
+
+void Riscv64JNIMacroAssembler::TestByteAndJumpIfNotZero(uintptr_t address ATTRIBUTE_UNUSED,
+                                         JNIMacroLabel* label ATTRIBUTE_UNUSED) {
 }
 
 void Riscv64JNIMacroAssembler::Bind(JNIMacroLabel* label) {
